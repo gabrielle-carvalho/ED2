@@ -48,7 +48,7 @@ def shell_sort(lista):
             lista[j] = aux
         intervalo //=2 #divide pela metade o intervalo
 
-coluna = dados.select_dtypes(include=["number"]).iloc[:, 0]  # pega a 1 coluna numérica
+coluna = dados['SessionLengthMin']
 lista_original = coluna.dropna().astype(float).tolist()
 
 lista = lista_original.copy() # QuickSort com pivô no início
