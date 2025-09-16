@@ -1,0 +1,80 @@
+# Implemente o Quicksort usando o primeiro elemento como pivô; Reimplemente o Quicksort usando o elemento do meio como pivô; Implemente o Shellsort ou Heapsort; Compare os desempenhos (tempo de execução) das implementações.
+import time
+import pandas as pd
+dados = pd.read_csv("ai_assistant_usage_student_life.csv")
+
+def quick_sort(lista, piv, inicio=0, fim=None):
+    if fim is None:
+        fim = len(lista) - 1
+    if inicio < fim:  # só ordena se a sublista tiver 2 ou mais elementos
+        if piv == 1:
+            p = partition_start(lista, inicio, fim)  # particiona a sublista e obtém índice final do pivô
+        elif piv == 2:
+            p = partition_middle(lista, inicio, fim)
+        quick_sort(lista, piv, inicio, p - 1) 
+        quick_sort(lista, piv, p + 1, fim)
+
+def partition_start(lista, inicio, fim):
+    pivot = lista[inicio]  # pivô escolhido como primeiro elemento
+    i = inicio + 1  # i aponta para o primeiro elemento após o pivô (procura elementos > pivô)
+    j = fim  # j aponta para o final da sublista (procura elementos < pivô)
+    while True:
+        while i <= j and lista[i] <= pivot:
+            i += 1 #avanca o elemento partindo do comeco
+        while i <= j and lista[j] >= pivot:
+            j -= 1 #percorre a lista do fim para 
+        if i <= j:
+            lista[i], lista[j] = lista[j], lista[i] # se o valor de i for menor que o de j, trocamos os 2
+        else:
+            break
+    lista[inicio], lista[j] = lista[j], lista[inicio] #
+    return j
+
+def partition_middle(lista, inicio, fim):
+    meio = (inicio + fim) // 2    
+    pivot = lista[meio]
+    i = inicio
+    while True:
+        while lista[i] < pivot:
+            i+=1
+        while lista[j] > pivot:
+            j+=1
+        if i >= j:
+            return j
+        lista[i], lista[j] = lista[j], lista[i]  # coloca pivô no início para chamar a funcao do comeco
+        i += 1
+        j -= 1
+        
+def shell_sort(lista):
+    n = len(lista)
+    intervalo = n // 2 # encontra o intervalo do meio
+    while intervalo > 0:
+        for i in range(intervalo, n):
+            aux = lista[i]
+            j = i
+            while j >= intervalo and lista[j-intervalo] > aux:
+                lista[j] = lista[j-intervalo]
+                j-= intervalo
+            lista[j] = aux
+        intervalo //=2 #divide pela metade o intervalo
+
+coluna = dados['SessionLengthMin']
+lista_original = coluna.dropna().astype(float).tolist()
+
+lista = lista_original.copy() # QuickSort com pivô no início
+inicio = time.time()
+quick_sort(lista, piv=1)
+fim = time.time()
+print(f"QuickSort pivô no início: {fim - inicio:.6f} segundos")
+
+lista = lista_original.copy() # QuickSort com pivô no meio
+inicio = time.time()
+quick_sort(lista, piv=2)
+fim = time.time()
+print(f"QuickSort pivô no meio: {fim - inicio:.6f} segundos")
+
+lista = lista_original.copy()# ShellSort
+inicio = time.time()
+shell_sort(lista)
+fim = time.time()
+print(f"ShellSort: {fim - inicio:.6f} segundos")
