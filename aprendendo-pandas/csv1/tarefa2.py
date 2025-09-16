@@ -1,57 +1,43 @@
-# Implemente o Quicksort usando o primeiro elemento como pivô; 
-# Reimplemente o Quicksort usando o elemento do meio como pivô; 
-# Implemente o Shellsort ou Heapsort; 
-# Compare os desempenhos (tempo de execução) das implementações.
-
+# Implemente o Quicksort usando o primeiro elemento como pivô; Reimplemente o Quicksort usando o elemento do meio como pivô; Implemente o Shellsort ou Heapsort; Compare os desempenhos (tempo de execução) das implementações.
 import time
 import pandas as pd
-
 dados = pd.read_csv("ai_assistant_usage_student_life.csv")
 
-print("Visualização inicial dos dados:")
-print(dados.head())
-
-def quick_sort_start(lista, inicio=0, fim=None):
+def quick_sort(lista, piv, inicio=0, fim=None):
     if fim is None:
         fim = len(lista) - 1
     if inicio < fim:  # só ordena se a sublista tiver 2 ou mais elementos
-        p = partition_start(lista, inicio, fim)  # particiona a sublista e obtém índice final do pivô
-        quick_sort_start(lista, inicio, p - 1) 
-        quick_sort_start(lista, p + 1, fim)
+        if piv == 1:
+            p = partition_start(lista, inicio, fim)  # particiona a sublista e obtém índice final do pivô
+        elif piv == 2:
+            p = partition_middle(lista, inicio, fim)
+        quick_sort(lista, piv, inicio, p - 1) 
+        quick_sort(lista, piv, p + 1, fim)
 
 def partition_start(lista, inicio, fim):
     pivot = lista[inicio]  # pivô escolhido como primeiro elemento
     i = inicio + 1  # i aponta para o primeiro elemento após o pivô (procura elementos > pivô)
     j = fim  # j aponta para o final da sublista (procura elementos < pivô)
-
     while True:
         while i <= j and lista[i] <= pivot:
-            i += 1
+            i += 1 #avanca o elemento partindo do comeco
         while i <= j and lista[j] >= pivot:
-            j -= 1
+            j -= 1 #percorre a lista do fim para 
         if i <= j:
-            lista[i], lista[j] = lista[j], lista[i]
+            lista[i], lista[j] = lista[j], lista[i] # se o valor de i for menor que o de j, trocamos os 2
         else:
             break
-    lista[inicio], lista[j] = lista[j], lista[inicio]
+    lista[inicio], lista[j] = lista[j], lista[inicio] #
     return j
-
-def quick_sort_middle(lista, inicio=0, fim=None):
-    if fim is None:
-        fim = len(lista) - 1
-    if inicio < fim:
-        p = partition_middle(lista, inicio, fim)
-        quick_sort_middle(lista, inicio, p - 1)
-        quick_sort_middle(lista, p + 1, fim)
 
 def partition_middle(lista, inicio, fim):
     meio = (inicio + fim) // 2    
-    lista[meio], lista[inicio] = lista[inicio], lista[meio]  # coloca pivô no início
-    return partition_start(lista, inicio, fim)
+    lista[meio], lista[inicio] = lista[inicio], lista[meio]  # coloca pivô no início para chamar a funcao do comeco
+    return partition_start(lista, inicio, fim) #chama a funcao de ordenar a partir do comeco
 
 def shell_sort(lista):
     n = len(lista)
-    intervalo = n // 2
+    intervalo = n // 2 # encontra o intervalo do meio
     while intervalo > 0:
         for i in range(intervalo, n):
             aux = lista[i]
@@ -62,16 +48,23 @@ def shell_sort(lista):
             lista[j] = aux
         intervalo //=2 #divide pela metade o intervalo
 
-coluna = dados.select_dtypes(include=["number"]).iloc[:,0]  # pegar a 1ª coluna numérica
+coluna = dados.select_dtypes(include=["number"]).iloc[:, 0]  # pega a 1 coluna numérica
 lista_original = coluna.dropna().astype(float).tolist()
 
-for metodo, func in [
-    ("QuickSort pivô no início", quick_sort_start),
-    ("QuickSort pivô no meio", quick_sort_middle),
-    ("ShellSort", shell_sort)
-]:
-    lista = lista_original.copy()
-    inicio = time.time()
-    func(lista)
-    fim = time.time()
-    print(f"{metodo}: {fim - inicio:.6f} segundos")
+lista = lista_original.copy() # QuickSort com pivô no início
+inicio = time.time()
+quick_sort(lista, piv=1)
+fim = time.time()
+print(f"QuickSort pivô no início: {fim - inicio:.6f} segundos")
+
+lista = lista_original.copy() # QuickSort com pivô no meio
+inicio = time.time()
+quick_sort(lista, piv=2)
+fim = time.time()
+print(f"QuickSort pivô no meio: {fim - inicio:.6f} segundos")
+
+lista = lista_original.copy()# ShellSort
+inicio = time.time()
+shell_sort(lista)
+fim = time.time()
+print(f"ShellSort: {fim - inicio:.6f} segundos")
